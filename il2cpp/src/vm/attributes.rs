@@ -6,7 +6,7 @@ macro_rules! define_block {
     };
 }
 
-define_block!{
+define_block! {
     FIELD_ATTRIBUTE_FIELD_ACCESS_MASK     0x0007;
     FIELD_ATTRIBUTE_COMPILER_CONTROLLED   0x0000;
     FIELD_ATTRIBUTE_PRIVATE               0x0001;
@@ -57,7 +57,7 @@ define_block! {
     METHOD_ATTRIBUTE_UNMANAGED_EXPORT          0x0008;
 }
 
-define_block!{
+define_block! {
     TYPE_ATTRIBUTE_VISIBILITY_MASK          0x00000007;
     TYPE_ATTRIBUTE_NOT_PUBLIC               0x00000000;
     TYPE_ATTRIBUTE_PUBLIC                   0x00000001;

@@ -7,9 +7,7 @@ pub struct Il2cppDomain(pub usize);
 
 impl Il2cppDomain {
     pub fn get() -> Self {
-        unsafe {
-            Self(il2cpp_domain_get() as usize)
-        }
+        unsafe { Self(il2cpp_domain_get() as usize) }
     }
 
     pub fn attach_thread(&self) {
@@ -28,6 +26,8 @@ impl Il2cppDomain {
     }
 
     pub fn assembly_open(&self, name: &str) -> Il2cppAssembly {
-        unsafe { Il2cppAssembly::from(il2cpp_domain_assembly_open(self.0, as_cstr!(name)) as *const u8)}
+        unsafe {
+            Il2cppAssembly::from(il2cpp_domain_assembly_open(self.0, as_cstr!(name)) as *const u8)
+        }
     }
 }

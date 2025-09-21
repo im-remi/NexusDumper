@@ -1,6 +1,8 @@
-use std::{io::{self, Write}, ptr};
 use il2cpp::vm::*;
-
+use std::{
+    io::{self, Write},
+    ptr,
+};
 
 pub fn write_assemblies_list<W: Write>(out: &mut W, domain: &Il2cppDomain) -> io::Result<()> {
     let mut i = 1;
@@ -15,7 +17,7 @@ pub fn write_assemblies_list<W: Write>(out: &mut W, domain: &Il2cppDomain) -> io
             image.class_count()
         )?;
 
-        i+=1;
+        i += 1;
     }
     writeln!(out)
 }
@@ -46,7 +48,9 @@ pub unsafe fn dump<W: Write>(out: &mut W) -> io::Result<()> {
             prepend_class_modifiers(out, flags)?;
             if flags & TYPE_ATTRIBUTE_ABSTRACT != 0 && flags & TYPE_ATTRIBUTE_SEALED != 0 {
                 write!(out, "static ")?;
-            } else if !(flags & TYPE_ATTRIBUTE_INTERFACE != 0) && flags & TYPE_ATTRIBUTE_ABSTRACT != 0 {
+            } else if !(flags & TYPE_ATTRIBUTE_INTERFACE != 0)
+                && flags & TYPE_ATTRIBUTE_ABSTRACT != 0
+            {
                 write!(out, "abstract ")?;
             } else if !class.is_struct() && !class.is_enum() && flags & TYPE_ATTRIBUTE_SEALED != 0 {
                 write!(out, "sealed ")?;
@@ -74,7 +78,12 @@ pub unsafe fn dump<W: Write>(out: &mut W) -> io::Result<()> {
                 }
             }
 
-            writeln!(out, " {{ // Address: {:?}, Token: 0x{:X}", class.0, class.token())?;
+            writeln!(
+                out,
+                " {{ // Address: {:?}, Token: 0x{:X}",
+                class.0,
+                class.token()
+            )?;
 
             for field in class.fields().iter() {
                 write_class_field(out, field)?;
@@ -119,19 +128,20 @@ fn write_class_field<W: Write>(out: &mut W, field: &Il2cppField) -> io::Result<(
             _ => write!(out, " = {value}")?,
         }
     }
-    writeln!(out, "; // Offset: 0x{:X}, Token: 0x{:X}", field.offset(), field.token())
+    writeln!(
+        out,
+        "; // Offset: 0x{:X}, Token: 0x{:X}",
+        field.offset(),
+        field.token()
+    )
 }
 
 fn write_class_method<W: Write>(out: &mut W, method: &Il2cppMethod) -> io::Result<()> {
     let base = il2cpp::util::assembly_base() as isize;
     let addr = method.address() as isize;
-    
-    let rva = if addr != 0 {
-        (addr - base) as usize
-    } else {
-        0
-    };
-    
+
+    let rva = if addr != 0 { (addr - base) as usize } else { 0 };
+
     let va = if addr != 0 {
         (addr - base + 0x1800_0000_0) as usize
     } else {
@@ -140,16 +150,12 @@ fn write_class_method<W: Write>(out: &mut W, method: &Il2cppMethod) -> io::Resul
     write!(
         out,
         "    // RVA: 0x{:X}, VA: 0x{:X}\n    ",
-        (method.address() != 0)
-            .then_some(rva)
-            .unwrap_or(0),
-        (method.address() != 0)
-            .then_some(va)
-            .unwrap_or(0)
+        (method.address() != 0).then_some(rva).unwrap_or(0),
+        (method.address() != 0).then_some(va).unwrap_or(0)
     )?;
     prepend_method_modifiers(out, method.attrs())?;
     write!(out, "{} {}(", method.return_type().name(), method.name())?;
-    
+
     for i in 0..method.param_count() {
         if i != 0 {
             write!(out, ", ")?;
@@ -226,12 +232,14 @@ fn prepend_class_modifiers<W: Write>(out: &mut W, flags: u32) -> io::Result<()> 
     if flags & TYPE_ATTRIBUTE_SERIALIZABLE != 0 {
         writeln!(out, "[Serializable]")?;
     }
-    
+
     match flags & TYPE_ATTRIBUTE_VISIBILITY_MASK {
         TYPE_ATTRIBUTE_PUBLIC | TYPE_ATTRIBUTE_NESTED_PUBLIC => write!(out, "public "),
         TYPE_ATTRIBUTE_NESTED_PRIVATE => write!(out, "private "),
         TYPE_ATTRIBUTE_NESTED_FAMILY => write!(out, "protected "),
-        TYPE_ATTRIBUTE_NOT_PUBLIC | TYPE_ATTRIBUTE_NESTED_FAM_AND_ASSEM | TYPE_ATTRIBUTE_NESTED_ASSEMBLY  => {
+        TYPE_ATTRIBUTE_NOT_PUBLIC
+        | TYPE_ATTRIBUTE_NESTED_FAM_AND_ASSEM
+        | TYPE_ATTRIBUTE_NESTED_ASSEMBLY => {
             write!(out, "internal ")
         }
         TYPE_ATTRIBUTE_NESTED_FAM_OR_ASSEM => write!(out, "protected internal "),
@@ -252,13 +260,12 @@ fn dump_attribute<W: Write>(out: &mut W, attr: &Il2cppObject) -> io::Result<()> 
     for field in class.fields().iter() {
         let field_name = extract_property_name(&field.name());
         let field_type = field.il2cpp_type();
-        
+
         let type_name = field_type.name();
         let type_name = type_name.rsplit('.').next().unwrap_or(&type_name);
 
         let offset = field.offset();
         let field_data_ptr = attr.0.wrapping_add(offset as usize);
-
 
         if !first {
             write!(out, ", ")?;
@@ -268,7 +275,9 @@ fn dump_attribute<W: Write>(out: &mut W, attr: &Il2cppObject) -> io::Result<()> 
 
         write!(out, "{} = ", field_name)?;
 
-        if let Some(getter) = class.get_method(&format!("get_{}", field_name), 0) && (type_name == "String" || type_name == "System.String"){
+        if let Some(getter) = class.get_method(&format!("get_{}", field_name), 0)
+            && (type_name == "String" || type_name == "System.String")
+        {
             if let Ok(value) = getter.invoke::<usize>(attr, &[]) {
                 let s = Il2cppString(value as *const u8).to_string();
                 write!(out, "\"{}\"", s)?;
@@ -277,14 +286,15 @@ fn dump_attribute<W: Write>(out: &mut W, attr: &Il2cppObject) -> io::Result<()> 
         }
 
         match type_name {
-            "String" | "string" | "System.String"=> {
-                let str_obj = unsafe { ptr::read_unaligned(field_data_ptr as *const *mut Il2cppString) };
+            "String" | "string" | "System.String" => {
+                let str_obj =
+                    unsafe { ptr::read_unaligned(field_data_ptr as *const *mut Il2cppString) };
                 if !str_obj.is_null() {
-                    write!(out, "\"{}\"", unsafe {(*str_obj).to_string() })?;
+                    write!(out, "\"{}\"", unsafe { (*str_obj).to_string() })?;
                 } else {
                     write!(out, "null")?;
                 }
-            },
+            }
             "Boolean" | "bool" => {
                 let val = unsafe { *(field_data_ptr as *const bool) };
                 write!(out, "{}", if val { "true" } else { "false" })?;
@@ -311,10 +321,7 @@ fn dump_attribute<W: Write>(out: &mut W, attr: &Il2cppObject) -> io::Result<()> 
 }
 
 pub fn extract_property_name(backing_field_name: &str) -> String {
-    if let (Some(start), Some(end)) = (
-        backing_field_name.find('<'),
-        backing_field_name.find('>'),
-    ) {
+    if let (Some(start), Some(end)) = (backing_field_name.find('<'), backing_field_name.find('>')) {
         if end > start + 1 {
             return backing_field_name[start + 1..end].to_string();
         }

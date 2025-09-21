@@ -13,8 +13,6 @@ impl From<*const u8> for Il2cppAssembly {
 
 impl Il2cppAssembly {
     pub fn image(&self) -> Il2cppImage {
-        unsafe {
-            Il2cppImage::from(il2cpp_assembly_get_image(self.0) as *const u8)
-        }
+        unsafe { Il2cppImage::from(il2cpp_assembly_get_image(self.0) as *const u8) }
     }
 }

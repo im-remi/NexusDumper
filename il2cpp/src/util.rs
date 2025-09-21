@@ -1,26 +1,25 @@
-use std::{borrow::Cow, ffi::{c_void, CStr}, sync::OnceLock};
-use windows::{core::s, Win32::System::LibraryLoader::LoadLibraryA};
+use std::{
+    borrow::Cow,
+    ffi::{CStr, c_void},
+    sync::OnceLock,
+};
+use windows::{Win32::System::LibraryLoader::LoadLibraryA, core::s};
 
 static ASSEMBLY_BASE: OnceLock<usize> = OnceLock::new();
 static UNITY_BASE: OnceLock<usize> = OnceLock::new();
 
 #[inline]
 pub unsafe fn cstr(s: *const i8) -> Cow<'static, str> {
-    unsafe {
-        CStr::from_ptr(s).to_string_lossy()
-    }
+    unsafe { CStr::from_ptr(s).to_string_lossy() }
 }
 
 pub fn assembly_base() -> usize {
-    *ASSEMBLY_BASE.get_or_init(|| unsafe {
-        LoadLibraryA(s!("GameAssembly.dll")).unwrap().0 as usize
-    })
+    *ASSEMBLY_BASE
+        .get_or_init(|| unsafe { LoadLibraryA(s!("GameAssembly.dll")).unwrap().0 as usize })
 }
 
 pub fn unity_base() -> usize {
-    *UNITY_BASE.get_or_init(|| unsafe {
-        LoadLibraryA(s!("UnityPlayer.dll")).unwrap().0 as usize
-    })
+    *UNITY_BASE.get_or_init(|| unsafe { LoadLibraryA(s!("UnityPlayer.dll")).unwrap().0 as usize })
 }
 
 pub fn unity_ptr(rva: usize) -> *mut c_void {
@@ -37,10 +36,7 @@ pub fn assembly_ptr(rva: usize) -> *mut c_void {
 #[macro_export]
 macro_rules! as_cstr {
     ($s:expr) => {
-        CString::new($s)
-            .unwrap()
-            .to_bytes_with_nul()
-            .as_ptr()
+        CString::new($s).unwrap().to_bytes_with_nul().as_ptr()
     };
 }
 
@@ -54,7 +50,6 @@ macro_rules! import {
     };
 }
 
-
 #[macro_export]
 macro_rules! import_gameassembly {
     ($name:ident($($arg:ident: $typ:ty),*) -> $ret:ty = $rva:expr) => {
@@ -64,8 +59,6 @@ macro_rules! import_gameassembly {
         }
     };
 }
-
-
 
 pub(crate) use as_cstr;
 pub(crate) use import_gameassembly;

@@ -1,6 +1,17 @@
-use std::{fs::File, io::{BufWriter, Write}, thread, time::Duration};
+use std::{
+    fs::File,
+    io::{BufWriter, Write},
+    thread,
+    time::Duration,
+};
 
-use windows::{core::s, Win32::{Foundation::HINSTANCE, System::{Console, LibraryLoader::GetModuleHandleA, SystemServices::DLL_PROCESS_ATTACH}}};
+use windows::{
+    Win32::{
+        Foundation::HINSTANCE,
+        System::{Console, LibraryLoader::GetModuleHandleA, SystemServices::DLL_PROCESS_ATTACH},
+    },
+    core::s,
+};
 
 mod util;
 
@@ -10,9 +21,11 @@ unsafe fn thread_fn() {
 
         println!("PararayaDumper made by Remi <3");
 
-        while GetModuleHandleA(s!("GameAssembly.dll")).is_err() || GetModuleHandleA(s!("UnityPlayer.dll")).is_err() {
+        while GetModuleHandleA(s!("GameAssembly.dll")).is_err()
+            || GetModuleHandleA(s!("UnityPlayer.dll")).is_err()
+        {
             thread::sleep(Duration::from_millis(200));
-        };
+        }
 
         while !il2cpp::ffi::il2cpp_is_fully_initialized() {
             std::thread::sleep(Duration::from_millis(100));

@@ -2,43 +2,31 @@ use super::*;
 
 #[repr(transparent)]
 #[derive(Clone)]
-pub struct Il2cppMethod(pub *const MethodInfo);
+pub struct Il2cppMethod(pub *const u8);
 
 impl Il2cppMethod {
     pub fn name(&self) -> Cow<'static, str> {
-        unsafe {
-            cstr(il2cpp_method_get_name(self.0))
-        }
+        unsafe { cstr(il2cpp_method_get_name(self.0)) }
     }
-    
+
     pub fn address(&self) -> usize {
-        unsafe {
-            *((self.0 as *const usize).offset(2))
-        }
+        unsafe { *((self.0 as *const usize).offset(2)) }
     }
-    
+
     pub fn return_type(&self) -> Il2cppType {
-        unsafe {
-            Il2cppType(il2cpp_method_get_return_type(self.0).cast())
-        }
+        unsafe { Il2cppType(il2cpp_method_get_return_type(self.0).cast()) }
     }
-    
+
     pub fn param_count(&self) -> u32 {
-        unsafe {
-            il2cpp_method_get_param_count(self.0)
-        }
+        unsafe { il2cpp_method_get_param_count(self.0) }
     }
-    
+
     pub fn param(&self, index: u32) -> Il2cppType {
-        unsafe {
-            Il2cppType(il2cpp_method_get_param(self.0, index))
-        }
+        unsafe { Il2cppType(il2cpp_method_get_param(self.0, index)) }
     }
-    
+
     pub fn param_name(&self, index: u32) -> Cow<'static, str> {
-        unsafe {
-            cstr(il2cpp_method_get_param_name(self.0, index))
-        }
+        unsafe { cstr(il2cpp_method_get_param_name(self.0, index)) }
     }
 
     pub fn attrs(&self) -> u32 {
@@ -48,7 +36,7 @@ impl Il2cppMethod {
     pub fn invoke<T: From<usize>>(
         &self,
         instance: &dyn Il2cppValue,
-        args: &[&dyn Il2cppValue]
+        args: &[&dyn Il2cppValue],
     ) -> Result<T, Il2cppException> {
         let args = args.iter().map(|arg| arg.as_raw()).collect::<Vec<_>>();
 
@@ -82,10 +70,11 @@ impl Il2cppMethod {
             }
 
             let array = Il2cppArray(attrs_array);
-            array.as_slice::<*const u8>()
-                 .iter()
-                 .filter_map(|&ptr| (!ptr.is_null()).then(|| Il2cppObject(ptr)))
-                 .collect()
+            array
+                .as_slice::<*const u8>()
+                .iter()
+                .filter_map(|&ptr| (!ptr.is_null()).then(|| Il2cppObject(ptr)))
+                .collect()
         }
     }
 }

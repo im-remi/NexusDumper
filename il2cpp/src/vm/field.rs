@@ -6,31 +6,23 @@ pub struct Il2cppField(pub *const u8);
 
 impl Il2cppField {
     pub fn name(&self) -> Cow<'static, str> {
-        unsafe {
-            cstr(il2cpp_field_get_name(self.0))
-        }
+        unsafe { cstr(il2cpp_field_get_name(self.0)) }
     }
 
     pub fn token(&self) -> u32 {
-        unsafe {
-            il2cpp_field_get_token(self.0)
-        }
+        unsafe { il2cpp_field_get_token(self.0) }
     }
-    
+
     pub fn offset(&self) -> u32 {
         unsafe { il2cpp_field_get_offset(self.0) }
     }
-    
+
     pub fn il2cpp_type(&self) -> Il2cppType {
-        unsafe {
-            Il2cppType(il2cpp_field_get_type(self.0))
-        }
+        unsafe { Il2cppType(il2cpp_field_get_type(self.0)) }
     }
 
     pub fn value(&self, object: &Il2cppObject) -> *const u8 {
-        unsafe {
-            il2cpp_field_unknown_value(self.0, object.0)
-        }
+        unsafe { il2cpp_field_unknown_value(self.0, object.0) }
     }
 
     pub fn static_value(&self) -> usize {
@@ -55,11 +47,11 @@ impl Il2cppField {
             }
 
             let array = Il2cppArray(attrs_array);
-            array.as_slice::<*const u8>()
-                 .iter()
-                 .filter_map(|&ptr| (!ptr.is_null()).then(|| Il2cppObject(ptr)))
-                 .collect()
+            array
+                .as_slice::<*const u8>()
+                .iter()
+                .filter_map(|&ptr| (!ptr.is_null()).then(|| Il2cppObject(ptr)))
+                .collect()
         }
     }
-
 }

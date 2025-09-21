@@ -1,10 +1,10 @@
 use std::ffi::c_void;
 use windows::{
-    core::{s, PCSTR},
     Win32::System::{
         LibraryLoader::{GetModuleHandleA, GetProcAddress, LoadLibraryA},
         Memory,
     },
+    core::{PCSTR, s},
 };
 
 #[inline]
@@ -30,15 +30,14 @@ pub unsafe fn patch_wintrust() {
 
     unsafe {
         let dll = LoadLibraryA(WINTRUST).unwrap();
-    
+
         for name in PATCH_FUNCTIONS {
             let addr = GetProcAddress(dll, name).unwrap();
             let mut prot = Memory::PAGE_EXECUTE_READWRITE;
-    
+
             Memory::VirtualProtect(addr as *const c_void, STUB.len(), prot, &mut prot).unwrap();
             std::ptr::copy_nonoverlapping(STUB.as_ptr(), addr as *mut u8, STUB.len());
             Memory::VirtualProtect(addr as *const c_void, STUB.len(), prot, &mut prot).unwrap();
         }
     }
-
 }

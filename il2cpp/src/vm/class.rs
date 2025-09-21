@@ -1,6 +1,6 @@
-use std::ffi::c_void;
-use crate::vm::field::Il2cppField;
 use super::*;
+use crate::vm::field::Il2cppField;
+use std::ffi::c_void;
 
 #[repr(transparent)]
 #[derive(Clone)]
@@ -9,40 +9,30 @@ pub struct Il2cppClass(pub *const u8);
 impl From<*const u8> for Il2cppClass {
     fn from(value: *const u8) -> Self {
         (value as usize != 0)
-        .then_some(Self(value))
-        .expect("Il2cppClass::from(null)")
+            .then_some(Self(value))
+            .expect("Il2cppClass::from(null)")
     }
 }
 
 impl Il2cppClass {
     pub fn token(&self) -> u32 {
-        unsafe {
-            il2cpp_class_get_token(self.0)
-        }
+        unsafe { il2cpp_class_get_token(self.0) }
     }
-    
+
     pub fn name(&self) -> Cow<'static, str> {
-        unsafe {
-            cstr(il2cpp_class_get_name(self.0))
-        }
+        unsafe { cstr(il2cpp_class_get_name(self.0)) }
     }
 
     pub fn namespace(&self) -> Cow<'static, str> {
-        unsafe {
-            cstr(il2cpp_class_get_namespace(self.0))
-        }
+        unsafe { cstr(il2cpp_class_get_namespace(self.0)) }
     }
-    
+
     pub fn is_enum(&self) -> bool {
-        unsafe {
-            il2cpp_class_is_enum(self.0)
-        }
+        unsafe { il2cpp_class_is_enum(self.0) }
     }
 
     pub fn is_struct(&self) -> bool {
-        unsafe {
-            il2cpp_class_is_valuetype(self.0)
-        }
+        unsafe { il2cpp_class_is_valuetype(self.0) }
     }
 
     pub fn parent_class(&self) -> Option<Self> {
@@ -53,11 +43,9 @@ impl Il2cppClass {
     }
 
     pub fn flags(&self) -> u32 {
-        unsafe {
-            il2cpp_class_get_flags(self.0)
-        }
+        unsafe { il2cpp_class_get_flags(self.0) }
     }
-    
+
     pub fn interfaces(&self) -> Vec<Il2cppClass> {
         unsafe {
             let mut interfaces = Vec::new();
@@ -153,10 +141,11 @@ impl Il2cppClass {
             }
 
             let array = Il2cppArray(attrs_array);
-            array.as_slice::<*const u8>()
-                 .iter()
-                 .filter_map(|&ptr| (!ptr.is_null()).then(|| Il2cppObject(ptr)))
-                 .collect()
+            array
+                .as_slice::<*const u8>()
+                .iter()
+                .filter_map(|&ptr| (!ptr.is_null()).then(|| Il2cppObject(ptr)))
+                .collect()
         }
     }
 }

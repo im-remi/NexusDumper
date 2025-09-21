@@ -41,16 +41,15 @@ impl<T: Copy + Into<usize>> Il2cppValue for T {
 pub struct Il2cppType(pub *const u128);
 impl Il2cppType {
     pub fn name(&self) -> Cow<'static, str> {
-        unsafe { cstr(il2cpp_type_get_name(self.0))}
+        unsafe { cstr(il2cpp_type_get_name(self.0)) }
     }
 
-
     pub fn attrs(&self) -> u32 {
-        unsafe { il2cpp_type_get_attrs(self.0)}
+        unsafe { il2cpp_type_get_attrs(self.0) }
     }
 
     pub fn is_byref(&self) -> bool {
-        unsafe { il2cpp_type_is_byref(self.0)}
+        unsafe { il2cpp_type_is_byref(self.0) }
     }
 
     pub fn type_enum(&self) -> u8 {

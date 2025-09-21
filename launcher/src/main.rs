@@ -13,7 +13,7 @@ use windows::Win32::System::Threading::{
     CREATE_SUSPENDED, CreateProcessA, CreateRemoteThread, PROCESS_INFORMATION, ResumeThread,
     STARTUPINFOA, WaitForSingleObject,
 };
-use windows::core::{PCSTR, s, PSTR};
+use windows::core::{PCSTR, PSTR, s};
 
 const EXECUTABLES: &[&str] = &["NexusAnima.exe"];
 const DLLS: &[&str] = &["parayaya.dll"];
@@ -41,7 +41,7 @@ fn main() -> ExitCode {
                     &startup_info,
                     &mut proc_info,
                 )
-                    .unwrap();
+                .unwrap();
 
                 let all_injected = DLLS.iter().all(|dll_name| {
                     let dll_path = current_dir.join(dll_name);
@@ -78,7 +78,7 @@ fn inject_standard(h_target: HANDLE, dll_path: &str) -> bool {
             GetModuleHandleA(s!("kernel32.dll")).unwrap(),
             s!("LoadLibraryA"),
         )
-            .unwrap();
+        .unwrap();
 
         let dll_path_cstr = CString::new(dll_path).unwrap();
         let dll_path_addr = VirtualAllocEx(
@@ -101,7 +101,7 @@ fn inject_standard(h_target: HANDLE, dll_path: &str) -> bool {
             dll_path_cstr.to_bytes_with_nul().len(),
             None,
         )
-            .unwrap();
+        .unwrap();
 
         let h_thread = CreateRemoteThread(
             h_target,
@@ -112,7 +112,7 @@ fn inject_standard(h_target: HANDLE, dll_path: &str) -> bool {
             0,
             None,
         )
-            .unwrap();
+        .unwrap();
 
         WaitForSingleObject(h_thread, 0xFFFFFFFF);
 
