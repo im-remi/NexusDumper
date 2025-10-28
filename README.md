@@ -1,4 +1,4 @@
-# PararayaDumper
+# NexusDumper
 
 A program made to extract classes, fields and methods from Honkai: Nexus Anima's code.
 
