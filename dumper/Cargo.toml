@@ -19,3 +19,5 @@ windows = { workspace = true, features = [
 
 dumpcs-gen.workspace = true
 il2cpp.workspace = true
+proto-gen.workspace = true
+metadata.workspace = true

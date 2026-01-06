@@ -19,11 +19,9 @@ unsafe fn thread_fn() {
     unsafe {
         let _ = Console::AllocConsole();
 
-        println!("PararayaDumper made by Remi <3");
+        println!("NexusDumper made by Remi <3");
 
-        while GetModuleHandleA(s!("GameAssembly.dll")).is_err()
-            || GetModuleHandleA(s!("UnityPlayer.dll")).is_err()
-        {
+        while GetModuleHandleA(s!("GameAssembly.dll")).is_err() {
             thread::sleep(Duration::from_millis(200));
         }
 
@@ -37,12 +35,19 @@ unsafe fn thread_fn() {
         if !std::fs::exists("dump").unwrap() {
             std::fs::create_dir("dump").unwrap();
         }
-        if std::fs::exists("dump/dump.cs").unwrap() {
-            std::fs::remove_file("dump/dump.cs").unwrap();
-        }
         let mut dump_cs = File::create("dump/dump.cs").unwrap();
         dumpcs_gen::dump(&mut BufWriter::new(&mut dump_cs)).unwrap();
-
+        
+        std::io::stdout().flush().unwrap();
+        let mut script_json = File::create("dump/script.json").unwrap();
+        println!("Creating script.json...");
+        metadata::create_script_json(&mut BufWriter::new(&mut script_json)).unwrap();
+        
+        std::io::stdout().flush().unwrap();
+        let mut cmd_ids_json = File::create("dump/cmd_ids.json").unwrap();
+        println!("Extracting CmdIDS...");
+        proto_gen::write_cmd_ids(&mut BufWriter::new(&mut cmd_ids_json)).unwrap();
+        
         println!("Done!");
     }
 }

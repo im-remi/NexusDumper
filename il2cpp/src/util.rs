@@ -2,11 +2,11 @@ use std::{
     borrow::Cow,
     ffi::{CStr, c_void},
     sync::OnceLock,
+    fs::File
 };
 use windows::{Win32::System::LibraryLoader::LoadLibraryA, core::s};
 
 static ASSEMBLY_BASE: OnceLock<usize> = OnceLock::new();
-static UNITY_BASE: OnceLock<usize> = OnceLock::new();
 
 #[inline]
 pub unsafe fn cstr(s: *const i8) -> Cow<'static, str> {
@@ -18,15 +18,10 @@ pub fn assembly_base() -> usize {
         .get_or_init(|| unsafe { LoadLibraryA(s!("GameAssembly.dll")).unwrap().0 as usize })
 }
 
-pub fn unity_base() -> usize {
-    *UNITY_BASE.get_or_init(|| unsafe { LoadLibraryA(s!("UnityPlayer.dll")).unwrap().0 as usize })
-}
-
-pub fn unity_ptr(rva: usize) -> *mut c_void {
-    unsafe {
-        let ptr = *((unity_base() + rva) as *const usize);
-        ptr as *mut c_void
-    }
+pub fn assembly_file_size() -> u64{
+    let file = File::open("GameAssembly.dll").expect("Couldn't get GameAssembly.dll");
+    let metadata = file.metadata().expect("Couldn't get metadata");
+    metadata.len()
 }
 
 pub fn assembly_ptr(rva: usize) -> *mut c_void {
@@ -37,16 +32,6 @@ pub fn assembly_ptr(rva: usize) -> *mut c_void {
 macro_rules! as_cstr {
     ($s:expr) => {
         CString::new($s).unwrap().to_bytes_with_nul().as_ptr()
-    };
-}
-
-#[macro_export]
-macro_rules! import {
-    ($name:ident($($arg:ident: $ty:ty),*) -> $ret:ty = $rva:expr) => {
-        pub unsafe fn $name($($arg: $ty,)*) -> $ret {
-            type FuncType = fn($($ty,)*) -> $ret;
-            unsafe { ::std::mem::transmute::<*const c_void, FuncType>(unity_ptr($rva))($($arg,)*)}
-        }
     };
 }
 

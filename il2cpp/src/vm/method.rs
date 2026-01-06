@@ -28,6 +28,10 @@ impl Il2cppMethod {
     pub fn param_name(&self, index: u32) -> Cow<'static, str> {
         unsafe { cstr(il2cpp_method_get_param_name(self.0, index)) }
     }
+    
+    pub fn class(&self) -> Il2cppClass {
+        unsafe { Il2cppClass(il2cpp_method_get_class(self.0))}
+    }
 
     pub fn attrs(&self) -> u32 {
         unsafe { get_method_flags(self.0) as u32 }

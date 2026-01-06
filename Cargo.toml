@@ -1,5 +1,5 @@
 [workspace]
-members = ["launcher", "il2cpp", "dumpcs-gen", "dumper"]
+members = ["launcher", "il2cpp", "dumpcs-gen", "dumper", "proto-gen", "metadata"]
 resolver = "2"
 
 [workspace.package]
@@ -11,3 +11,5 @@ windows = "0.58.0"
 
 il2cpp = {path = "il2cpp"}
 dumpcs-gen = {path = "dumpcs-gen"}
+proto-gen = {path = "proto-gen"}
+metadata = {path = "metadata"}

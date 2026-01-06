@@ -18,6 +18,7 @@ import_gameassembly!(il2cpp_class_is_valuetype(class: *const u8) -> bool = 0x154
 import_gameassembly!(il2cpp_class_is_blittable(class: *const u8) -> bool = 0x1548280);
 import_gameassembly!(il2cpp_class_get_flags(class: *const u8) -> u32 = 0x1547F40);
 import_gameassembly!(il2cpp_class_is_enum(class: *const u8) -> bool = 0x1548240);
+import_gameassembly!(il2cpp_class_from_il2cpp_type(il2cpp_type: *const u8) -> *const u8 = 0x1547E80);
 
 import_gameassembly!(il2cpp_domain_get() -> *const c_void = 0x15483E0);
 import_gameassembly!(il2cpp_domain_assembly_open(domain: usize, name: *const u8) -> usize = 0x15483E0);
@@ -35,6 +36,8 @@ import_gameassembly!(il2cpp_method_get_name(method: *const u8) -> *const i8 = 0x
 import_gameassembly!(il2cpp_method_get_param_count(method: *const u8) -> u32 = 0x15629C0);
 import_gameassembly!(il2cpp_method_get_param(method: *const u8, index: u32) -> *const u128 = 0x1562950);
 import_gameassembly!(il2cpp_method_get_param_name(method: *const u8, index: u32) -> *const i8 = 0x1549690);
+import_gameassembly!(il2cpp_method_get_class(method: *const u8) -> *const u8 = 0x15495F0);
+
 import_gameassembly!(il2cpp_method_get_flags(method: *const u8) -> u32 = 0x1549600);
 
 import_gameassembly!(il2cpp_object_new(class: *const u8) -> *const u8 = 0x1549870);

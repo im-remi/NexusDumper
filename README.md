@@ -2,12 +2,14 @@
 
 A program made to extract classes, fields and methods from Honkai: Nexus Anima's code.
 
+Also includes generating script.json for IDA, and extracting CmdIDs for Protocol Buffers.
+
 ## Information
 
 This tool only supports the OS version 0.3.0 (CBT1) of Honkai: Nexus Anima. CN may work, but it has not been tested.
 
 ## Credits
-- thexeondev's [GracefulDumper](https://github.com/thexeondev/GracefulDumper) (MIT license)
+- thexeondev's [GracefulDumper](https://github.com/thexeondev/GracefulDumper)
 
 ## Disclaimer
 
